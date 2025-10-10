@@ -9,18 +9,17 @@
 #                                                               |___/          #
 ################################################################################
 
-import discord
+import nextcord
+from nextcord.ext import commands
 import const
-from client import Client
 
-if __name__ == '__main__':
-    intents = discord.Intents.default()
-    intents.message_content = True
+mangle = commands.Bot(intents=nextcord.Intents.all(),
+                      command_prefix=' ',
+                      activity=nextcord.Activity(name="/help", type=nextcord.ActivityType.playing),
+                      status=nextcord.Status.online,
+                      owner_id=475354677773336596)
 
-    client = Client(intents=intents, command_prefix=' ', owner_id=475354677773336596)
+for cog in ["embed_handler"]:
+    mangle.load_extension(f"cogs.{cog}")
 
-    @client.tree.command(name="ping", description="Get the client latency.", guild=const.GUILD)
-    async def ping(interaction: discord.Interaction):
-        return await interaction.response.send_message(f"{(client.latency * 1000):.3f}ms", ephemeral=True)
-
-    client.run(const.APP_TOKEN)
+mangle.run(const.APP_TOKEN)
