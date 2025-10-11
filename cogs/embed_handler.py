@@ -51,7 +51,17 @@ COLORS_DICT = {'white': 0xffffff, 'red': 0xff0000, 'burgundy': 0xb10000, 'orange
 
 COLORS_KEYS = [attribute.name for attribute in COLORS]
 
-def create_embed(title=None, description=None, color: hex = COLORS.default, link=None, image=None, icon=None, header=None, header_icon=None, footer=None, footer_icon=None, fields: tuple = ()):
+def create_embed(title=None,
+                 description=None,
+                 color: hex = COLORS.default,
+                 link=None,
+                 image=None,
+                 icon=None,
+                 header=None,
+                 header_icon=None,
+                 footer=None,
+                 footer_icon=None,
+                 fields: tuple = ()):
     message = nextcord.Embed()
     if title is not None:
         message.title = title
@@ -62,15 +72,15 @@ def create_embed(title=None, description=None, color: hex = COLORS.default, link
     if link is not None:
         message.url = link
     if image is not None:
-        message.set_image(url=image)
+        message.set_image(url=str(image))
     if icon is not None:
-        message.set_thumbnail(url=icon)
+        message.set_thumbnail(url=str(icon))
     if header_icon is not None:
-        message.set_author(name=header, icon_url=header_icon)
+        message.set_author(name=header, icon_url=str(header_icon))
     elif header is not None:
         message.set_author(name=header)
     if footer_icon is not None:
-        message.set_footer(text=footer, icon_url=footer_icon)
+        message.set_footer(text=footer, icon_url=str(footer_icon))
     elif footer is not None:
         message.set_footer(text=footer)
     for field in fields:
@@ -111,19 +121,20 @@ class MangleEmbedMessageHandler(commands.Cog):
                     await ia.send(content="Invalid message format", ephemeral=True)
                     return
 
-    @nextcord.slash_command(name="message_edit", description="Allows to edit a previously send message using /message command")
-    async def message_edit(self, ia: nextcord.Interaction, message_id : str = nextcord.SlashOption(description="Message ID", required=True),
-                     content: str = nextcord.SlashOption(name="outside", description="Content outside the embed message (Ping mentions here)", default=None, required=False),
-                     title: str = nextcord.SlashOption(name="title", description="Embed title", default=None, required=False),
-                     description: bool = nextcord.SlashOption(name="content", description="You want to edit the content inside the embed message ?", choices=[True, False], default=False, required=False),
-                     color: str = nextcord.SlashOption(name="color", description="Embed color", choices=COLORS_KEYS, default="default", required=False),
-                     link: str = nextcord.SlashOption(name="link", description="Transform the title to an clickable hyperlink.", default=None, required=False),
-                     image: str = nextcord.SlashOption(name="image", description="Internet hyperlink to an image.", default=None, required=False),
-                     thumbnail: str = nextcord.SlashOption(name="thumbnail", description="Internet hyperlink to an image.", default=None, required=False),
-                     header_name: str = nextcord.SlashOption(name="header", description="Name shown at the top of the embed message", default=None, required=False),
-                     header_icon: str = nextcord.SlashOption(name="avatar", description="Internet hyperlink to an image placed near the header name", default=None, required=False),
-                     footer_name: str = nextcord.SlashOption(name="footer", description="Name displayed at the footer of the embed message", default=None, required=False),
-                     footer_icon: str = nextcord.SlashOption(name="icon", description="Internet hyperlink to an image placed near the header name", default=None, required=False)):
+    @nextcord.slash_command(name="message_edit", description="Allows to edit a previously send message from /message command")
+    async def message_edit(self, ia: nextcord.Interaction,
+                           message_id : str = nextcord.SlashOption(description="Message ID", required=True),
+                           content: str = nextcord.SlashOption(name="outside", description="Content outside the embed message (Ping mentions here)", default=None, required=False),
+                           title: str = nextcord.SlashOption(name="title", description="Embed title", default=None, required=False),
+                           description: bool = nextcord.SlashOption(name="content", description="You want to edit the content inside the embed message ?", choices=[True, False], default=False, required=False),
+                           color: str = nextcord.SlashOption(name="color", description="Embed color", choices=COLORS_KEYS, default="default", required=False),
+                           link: str = nextcord.SlashOption(name="link", description="Transform the title to an clickable hyperlink.", default=None, required=False),
+                           image: str = nextcord.SlashOption(name="image", description="Internet hyperlink to an image.", default=None, required=False),
+                           thumbnail: str = nextcord.SlashOption(name="thumbnail", description="Internet hyperlink to an image.", default=None, required=False),
+                           header_name: str = nextcord.SlashOption(name="header", description="Name shown at the top of the embed message", default=None, required=False),
+                           header_icon: str = nextcord.SlashOption(name="avatar", description="Internet hyperlink to an image placed near the header name", default=None, required=False),
+                           footer_name: str = nextcord.SlashOption(name="footer", description="Name displayed at the footer of the embed message", default=None, required=False),
+                           footer_icon: str = nextcord.SlashOption(name="icon", description="Internet hyperlink to an image placed near the header name", default=None, required=False)):
         message = await ia.channel.get_partial_message(int(message_id)).fetch()
         if description:
             await ia.response.send_modal(Message(embed=create_embed(title, None, COLORS_DICT[color], link, image, thumbnail, header_name, header_icon, footer_name, footer_icon), content=content, channel=ia.channel, origin=message))
