@@ -18,8 +18,15 @@ import os
 import sys
 
 if len(sys.argv) == 2 and sys.argv[1] == "production":
-    GUILD_ID = os.getenv("PROD_GUILD")
     APP_TOKEN = os.getenv("PROD_APP_TOKEN")
+    GUILD_ID = 1246471994195705876
+    BOT_CHANNEL_ID = 1426683358414639215
+
 else:
-    GUILD_ID = os.getenv("DEV_GUILD")
     APP_TOKEN = os.getenv("DEV_APP_TOKEN")
+    GUILD_ID = 1423408793089347596
+    BOT_CHANNEL_ID = 1424043802762412182
+
+if not APP_TOKEN:
+    print("Missing .env variable(s)")
+    exit(1)

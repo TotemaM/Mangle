@@ -1,6 +1,6 @@
 ################################################################################
 #                                            __  __                   _        #
-# cogs/embed_handler                        |  \/  |                 | |       #
+# cogs/admin/embed_message.py               |  \/  |                 | |       #
 #                                           | \  / | __ _ _ __   __ _| | ___   #
 # MICHELETTI Matteo                         | |\/| |/ _` | '_ \ / _` | |/ _ \  #
 # (https://github.com/TotemaM)              | |  | | (_| | | | | (_| | |  __/  #
@@ -9,11 +9,8 @@
 #                                                               |___/          #
 ################################################################################
 
-import nextcord
+import nextcord, const
 from nextcord.ext import commands
-
-from const import GUILD_ID
-from ui.message import Message
 
 def setup(mangle: commands.Bot):
     mangle.add_cog(MangleEmbedMessageHandler(mangle))
@@ -90,11 +87,38 @@ def create_embed(title=None,
             message.add_field(name=field[0], value=field[1], inline=True)
     return message
 
+class EmbedMessageModal(nextcord.ui.Modal):
+    def __init__(self, embed: nextcord.Embed, content: str, channel: nextcord.TextChannel, origin=False):
+        super().__init__(title="Message content :")
+        self.content = content
+        self.description = nextcord.ui.TextInput(label="", placeholder="",
+                                                 style=nextcord.TextInputStyle.paragraph, required=True, min_length=1,
+                                                 max_length=3968)
+        self.add_item(self.description)
+        self.embed = embed
+        self.channel = channel
+        self.origin = origin
+
+    async def callback(self, ia: nextcord.Interaction):
+        self.embed.description = self.description.value
+        if self.origin:
+            if self.content:
+                await self.origin.edit(content=self.content, embed=self.embed)
+            else:
+                await self.origin.edit(embed=self.embed)
+            await ia.send(content="Message edited", delete_after=5.0)
+        else:
+            if self.content:
+                message = await self.channel.send(content=self.content, embed=self.embed)
+            else:
+                message = await self.channel.send(embed=self.embed)
+            await ia.send(content=f"Message send.\nMessage ID : `{message.id}`", ephemeral=True)
+
 class MangleEmbedMessageHandler(commands.Cog):
     def __init__(self, mangle: commands.Bot):
         self.mangle = mangle
 
-    @nextcord.slash_command(name='message', description="Make the bot send an embed message in the current channel.")
+    @nextcord.slash_command(name='message', description="Make the bot send an embed message in the current channel.", default_member_permissions=8)
     async def message(self, ia: nextcord.Interaction,
                       content: str = nextcord.SlashOption(name="outside", description="Content outside the embed message (Ping mentions here)", default=None, required=False),
                       title: str = nextcord.SlashOption(name="title", description="Embed title", default=None, required=False),
@@ -108,22 +132,19 @@ class MangleEmbedMessageHandler(commands.Cog):
                       footer_name: str = nextcord.SlashOption(name="footer", description="Name displayed at the footer of the embed message", default=None, required=False),
                       footer_icon: str = nextcord.SlashOption(name="icon", description="Internet hyperlink to an image placed near the header name", default=None, required=False)):
         if description:
-            await ia.response.send_modal(Message(embed=create_embed(title, None, COLORS_DICT[color], link, image, thumbnail, header_name, header_icon, footer_name, footer_icon), content=content, channel=ia.channel))
+            return await ia.response.send_modal(EmbedMessageModal(embed=create_embed(title, None, COLORS_DICT[color], link, image, thumbnail, header_name, header_icon, footer_name, footer_icon), content=content, channel=ia.channel))
         else:
             try:
-                message = await ia.channel.send(content=content, embed=create_embed(title, None, COLORS_DICT[color], link, image, thumbnail, header_name, header_icon, footer_name, footer_icon))
-                await ia.send(content=f"Message send.\nMessage ID : `{message.id}`", ephemeral=True)
+                return await ia.channel.send(content=content, embed=create_embed(title, None, COLORS_DICT[color], link, image, thumbnail, header_name, header_icon, footer_name, footer_icon))
             except nextcord.errors.HTTPException:
                 try:
-                    message = await ia.channel.send(content=content)
-                    await ia.send(content=f"Message send.\nMessage ID : `{message.id}`", ephemeral=True)
+                    return await ia.channel.send(content=content)
                 except nextcord.errors.HTTPException:
-                    await ia.send(content="Invalid message format", ephemeral=True)
-                    return
+                    return await ia.send(content="Invalid message format", ephemeral=True)
 
-    @nextcord.slash_command(name="message_edit", description="Allows to edit a previously send message from /message command")
+    @nextcord.slash_command(name="message_edit", description="Allows to edit a previously send message from /message command", default_member_permissions=8)
     async def message_edit(self, ia: nextcord.Interaction,
-                           message_id : str = nextcord.SlashOption(description="Message ID", required=True),
+                           message_id : str = nextcord.SlashOption(name="message_id", description="Message ID", required=True),
                            content: str = nextcord.SlashOption(name="outside", description="Content outside the embed message (Ping mentions here)", default=None, required=False),
                            title: str = nextcord.SlashOption(name="title", description="Embed title", default=None, required=False),
                            description: bool = nextcord.SlashOption(name="content", description="You want to edit the content inside the embed message ?", choices=[True, False], default=False, required=False),
@@ -137,15 +158,12 @@ class MangleEmbedMessageHandler(commands.Cog):
                            footer_icon: str = nextcord.SlashOption(name="icon", description="Internet hyperlink to an image placed near the header name", default=None, required=False)):
         message = await ia.channel.get_partial_message(int(message_id)).fetch()
         if description:
-            await ia.response.send_modal(Message(embed=create_embed(title, None, COLORS_DICT[color], link, image, thumbnail, header_name, header_icon, footer_name, footer_icon), content=content, channel=ia.channel, origin=message))
+            return await ia.response.send_modal(EmbedMessageModal(embed=create_embed(title, None, COLORS_DICT[color], link, image, thumbnail, header_name, header_icon, footer_name, footer_icon), content=content, channel=ia.channel, origin=message))
         else:
             try:
-                await message.edit(content=content, embed=create_embed(title, None, COLORS_DICT[color], link, image, thumbnail, header_name, header_icon, footer_name, footer_icon))
-                await ia.send(content="Modified message", ephemeral=True)
+                return await message.edit(content=content, embed=create_embed(title, None, COLORS_DICT[color], link, image, thumbnail, header_name, header_icon, footer_name, footer_icon))
             except nextcord.errors.HTTPException:
                 try:
-                    await message.edit(content=content)
-                    await ia.send(content="Modified message", ephemeral=True)
+                    return await message.edit(content=content)
                 except nextcord.errors.HTTPException:
-                    await ia.send(content="Invalid message format", ephemeral=True)
-                    return
+                    return await ia.send(content="Invalid message format", ephemeral=True)
