@@ -11,12 +11,13 @@
 
 import nextcord, const
 from nextcord.ext import commands, tasks
+from bot import Mangle
 
 def setup(mangle: commands.Bot):
     mangle.add_cog(MangleCustomVoiceChannel(mangle))
 
 class MangleCustomVoiceChannel(commands.Cog):
-    def __init__(self, mangle: commands.Bot):
+    def __init__(self, mangle: Mangle):
         self.mangle = mangle
         self.custom_voice_channels: list[nextcord.VoiceChannel] = []
 
@@ -37,7 +38,7 @@ class MangleCustomVoiceChannel(commands.Cog):
     @nextcord.slash_command(name="create_voice_channel", description="Go into a voice channel and type this command to create your temporary voice channel.")
     async def custom_vc(self, ia: nextcord.Interaction, channel_name: str = nextcord.SlashOption(required=True)):
         if ia.channel.id != const.BOT_CHANNEL_ID:
-            return await ia.send(content=f"You're not in the appropriate channel, try this here {self.mangle.get_channel(const.BOT_CHANNEL_ID).mention}", ephemeral=True)
+            return await ia.send(content=f"You're not in the appropriate channel, try this here {self.mangle.get_channel(const.BOT_CHANNEL_ID).mention}", ephemeral=True, delete_after=5)
         if not ia.user.voice:
             return await ia.send(content="You have to be in a voice channel to create a yours.", ephemeral=True)
         new_voice_channel = await ia.user.voice.channel.category.create_voice_channel(name=f"💠・{channel_name}")

@@ -16,7 +16,8 @@ if __name__ == '__main__':
     mangle = Mangle()
     cogs = [
         "admin.embed_message",
-        "user.custom_voice_channel"
+        "user.custom_voice_channel",
+        "user.request_staff"
     ]
     for cog in cogs:
         mangle.load_extension(f"cogs.{cog}")

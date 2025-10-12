@@ -34,7 +34,8 @@ Anything else will run it with the development credentials.
 
 ## Command list
 ### User
-- `/create_channel` : Allow a user to create his own voice channel. Auto deleted when everyone left.
+- `/create_voice_channel` : Allow a user to create his own voice channel. Auto deleted when everyone left.
+- `/request_bde` : Make a request to the BDE staff.
 
 ### Administrator
 - `/message` : Allows to send an embed message in the current text channel.
