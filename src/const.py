@@ -26,6 +26,8 @@ if len(sys.argv) == 2 and sys.argv[1] == "production":
     LOG_CHANNEL_ID = 1429491265787133972
     # Roles ID :
     BDE_NOTIFY_ROLE_ID = 1426986632661172255
+    # Unlogged categories ("Information", "Discord admin" and "Admin") :
+    NOT_LOGGED_CATEGORIES_IDS = [1246471994195705877, 1426161950613573792, 1246480079585018038]
 else:
     APP_TOKEN = os.getenv("DEV_APP_TOKEN")
     GUILD_ID = 1423408793089347596
@@ -35,9 +37,8 @@ else:
     LOG_CHANNEL_ID = 1429497328519086101
     # Roles ID :
     BDE_NOTIFY_ROLE_ID = 1423410272940326942
-
-# "Information", "Discord admin" and "Admin" categories :
-NOT_LOGGED_CATEGORIES_IDS = [1423623754113744956, 1425610232251547718, 1423410525768777798]
+    # Unlogged categories ("Information", "Discord admin" and "Admin") :
+    NOT_LOGGED_CATEGORIES_IDS = [1423623754113744956, 1425610232251547718, 1423410525768777798]
 
 if not APP_TOKEN:
     print("Missing .env variable(s)")
