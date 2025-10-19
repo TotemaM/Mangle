@@ -32,11 +32,33 @@ DEV_APP_TOKEN=<Dev Discord app token>
 To run the program with the production credentials you have to run it with 1 arg equals to `production`.  
 Anything else will run it with the development credentials.
 
-## Command list
-### User
+### Constants
+Inside the `const.py` file, you have to define some discord IDs
+```
+GUILD_ID
+# Channels
+BOT_CHANNEL_ID
+REQUEST_CHANNEL_ID
+LOG_CHANNEL_ID
+# Roles
+BDE_NOTIFY_ROLE_ID
+# Categories
+NOT_LOGGED_CATEGORIES_IDS
+```
+
+## Functionalities
+### Event logs
+The bots logs the following events inside a given channel :
+- Deleting a message
+- Editing a message
+- Error on command
+- Error on application command
+
+### Command list
+#### User
 - `/create_voice_channel` : Allow a user to create his own voice channel. Auto deleted when everyone left.
 - `/request_bde` : Make a request to the BDE staff.
 
-### Administrator
+#### Administrator
 - `/message` : Allows to send an embed message in the current text channel.
 - `/message_edit` : Edit a previously send, embed message.

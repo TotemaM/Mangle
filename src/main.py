@@ -15,6 +15,7 @@ import const
 if __name__ == '__main__':
     mangle = Mangle()
     cogs = [
+        "admin.event_logger",
         "admin.embed_message",
         "user.custom_voice_channel",
         "user.request_staff"

@@ -90,7 +90,7 @@ def create_embed(title=None,
 
 class EmbedMessageModal(nextcord.ui.Modal):
     def __init__(self, embed: nextcord.Embed, content: str, channel: nextcord.TextChannel, origin=False):
-        super().__init__(title="Embed message creator")
+        super().__init__(title="Embed message creator", timeout=300)
         self.content = content
         self.description = nextcord.ui.TextInput(label="Content", placeholder="...",
                                                  style=nextcord.TextInputStyle.paragraph, required=True, min_length=1,
@@ -113,7 +113,7 @@ class EmbedMessageModal(nextcord.ui.Modal):
                 message = await self.channel.send(content=self.content, embed=self.embed)
             else:
                 message = await self.channel.send(embed=self.embed)
-            await ia.send(content=f"Message ID : `{message.id}`", ephemeral=True)
+            await ia.send(content=f"Message ID : `{message.id}`", ephemeral=True, delete_after=10)
 
 class MangleEmbedMessageHandler(commands.Cog):
     def __init__(self, mangle: Mangle):
@@ -166,7 +166,8 @@ class MangleEmbedMessageHandler(commands.Cog):
             return await ia.response.send_modal(EmbedMessageModal(embed=create_embed(title, None, COLORS_DICT[color], link, image, thumbnail, header_name, header_icon, footer_name, footer_icon), content=content, channel=ia.channel, origin=message))
         else:
             try:
-                return await message.edit(content=content, embed=create_embed(title, None, COLORS_DICT[color], link, image, thumbnail, header_name, header_icon, footer_name, footer_icon))
+                await message.edit(content=content, embed=create_embed(title, None, COLORS_DICT[color], link, image, thumbnail, header_name, header_icon, footer_name, footer_icon))
+                return await ia.send(content="Message has been edited", ephemeral=True, delete_after=5)
             except nextcord.errors.HTTPException:
                 try:
                     return await message.edit(content=content)

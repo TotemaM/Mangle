@@ -44,5 +44,5 @@ class MangleCustomVoiceChannel(commands.Cog):
         new_voice_channel = await ia.user.voice.channel.category.create_voice_channel(name=f"💠・{channel_name}")
         self.custom_voice_channels.append(new_voice_channel)
         await ia.user.move_to(new_voice_channel)
-        await new_voice_channel.set_permissions(target=ia.user, overwrite=nextcord.PermissionOverwrite(manage_channels=True, manage_permissions=True, connect=True))
+        await new_voice_channel.set_permissions(target=ia.user, overwrite=nextcord.PermissionOverwrite(manage_channels=True, manage_permissions=True, connect=True, move_members=True))
         return await ia.send(content="Voice channel created", ephemeral=True, delete_after=5)
