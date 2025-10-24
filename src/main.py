@@ -17,6 +17,7 @@ if __name__ == '__main__':
     cogs = [
         "admin.event_logger",
         "admin.embed_message",
+        "events.guild_icon",
         "user.custom_voice_channel",
         "user.request_staff"
     ]

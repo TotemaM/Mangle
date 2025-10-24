@@ -8,7 +8,6 @@
 # This file is under MIT licence                                 __/ |         #
 #                                                               |___/          #
 ################################################################################
-from unittest import expectedFailure
 
 import nextcord, const
 from nextcord.ext import commands
