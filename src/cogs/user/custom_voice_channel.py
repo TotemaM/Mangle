@@ -8,6 +8,8 @@
 # This file is under MIT licence                                 __/ |         #
 #                                                               |___/          #
 ################################################################################
+import curses.ascii
+from curses.ascii import isalpha
 
 import nextcord, const
 from nextcord.ext import commands, tasks
@@ -20,29 +22,52 @@ class MangleCustomVoiceChannel(commands.Cog):
     def __init__(self, mangle: Mangle):
         self.mangle = mangle
         self.custom_voice_channels: list[nextcord.VoiceChannel] = []
+        self.SAVE_FILE = "static/voice_channel.save"
+        try:
+            open(self.SAVE_FILE, "x")
+        except FileExistsError:
+            pass
+
+    def add_channel(self, channel: nextcord.VoiceChannel):
+        self.custom_voice_channels.append(channel)
+        with open(self.SAVE_FILE, "a") as file:
+            file.write(f"{channel.id}\n")
+
+    def save_channels(self):
+        with (open(self.SAVE_FILE, "w") as file):
+            for vc in self.custom_voice_channels:
+                file.write(f"{vc.id}\n")
 
     @commands.Cog.listener()
     async def on_ready(self):
+        with open(self.SAVE_FILE, "r") as file:
+            for line in file:
+                channel = self.mangle.get_channel(int(line))
+                if channel is not None:
+                    self.custom_voice_channels.append(channel)
         await self.check_custom_voice_channels.start()
 
     @tasks.loop(minutes=1)
     async def check_custom_voice_channels(self):
+        new_list = []
         for voice_channel in self.custom_voice_channels:
             if len(voice_channel.members) == 0:
                 try:
                     await voice_channel.delete()
                 except nextcord.NotFound:
                     pass
-                self.custom_voice_channels.remove(voice_channel)
+            else:
+                new_list.append(voice_channel)
+        self.custom_voice_channels = new_list
+        self.save_channels()
 
     @nextcord.slash_command(name="create_voice_channel", description="Go into a voice channel and type this command to create your temporary voice channel.")
-    async def custom_vc(self, ia: nextcord.Interaction, channel_name: str = nextcord.SlashOption(required=True)):
+    async def custom_vc(self, ia: nextcord.Interaction, channel_name: str = nextcord.SlashOption(required=True, min_length=2, max_length=12)):
         if ia.channel.id != const.BOT_CHANNEL_ID:
             return await ia.send(content=f"You're not in the appropriate channel, try this here {self.mangle.get_channel(const.BOT_CHANNEL_ID).mention}", ephemeral=True, delete_after=5)
         if not ia.user.voice:
             return await ia.send(content="You have to be in a voice channel to create a yours.", ephemeral=True)
-        new_voice_channel = await ia.user.voice.channel.category.create_voice_channel(name=f"💠・{channel_name}")
-        self.custom_voice_channels.append(new_voice_channel)
-        await ia.user.move_to(new_voice_channel)
-        await new_voice_channel.set_permissions(target=ia.user, overwrite=nextcord.PermissionOverwrite(manage_channels=True, manage_permissions=True, connect=True, move_members=True))
-        return await ia.send(content="Voice channel created", ephemeral=True, delete_after=5)
+        new_voice_channel = await ia.user.voice.channel.category.create_voice_channel(name=f"💠・{"".join(c.lower() for c in channel_name if c.isalpha())}")
+        self.add_channel(new_voice_channel)
+        await ia.send(content="Voice channel created", ephemeral=True, delete_after=5)
+        return await ia.user.move_to(new_voice_channel)

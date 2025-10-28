@@ -21,6 +21,7 @@ class MangleGuildIconHandler(commands.Cog):
     def __init__(self, mangle: Mangle):
         self.mangle = mangle
         self.current = ""
+        self.decay_loop = False
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -35,8 +36,11 @@ class MangleGuildIconHandler(commands.Cog):
 
     @tasks.loop(hours=8)
     async def cycle_guild_icon(self):
+        if not self.decay_loop:
+            self.decay_loop = True
+            return
         dt = datetime.now()
         if datetime(year= dt.year, month=10, day=25) <= dt <= datetime(year=dt.year, month=11, day=2):
-            await self._set_guild_icon("static/guild_icon_halloween.png")
+            await self._set_guild_icon("static/guild_icons/halloween.png")
         else:
-            await self._set_guild_icon("static/guild_icon.png")
+            await self._set_guild_icon("static/guild_icons/default.png")
