@@ -7,3 +7,8 @@ all:
 
 production:
 	$(CC) $(SRCD)/$(NAME) $@
+
+.PHONY: update
+
+update:
+	pip install -r requirements.txt

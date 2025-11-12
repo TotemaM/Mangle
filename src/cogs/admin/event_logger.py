@@ -12,7 +12,7 @@
 import nextcord, const
 from nextcord.ext import commands
 from bot import Mangle
-from cogs.admin.embed_message import create_embed, COLORS_DICT
+from command_utils import create_embed, COLORS_DICT
 
 def setup(mangle: commands.Bot):
 	mangle.add_cog(MangleEventLogger(mangle))
@@ -41,7 +41,7 @@ class MangleEventLogger(commands.Cog):
 	@commands.Cog.listener()
 	async def on_raw_message_delete(self, pl: nextcord.RawMessageDeleteEvent):
 		channel = self.mangle.get_channel(pl.channel_id)
-		if channel.category.id in const.NOT_LOGGED_CATEGORIES_IDS or channel.id == const.BOT_CHANNEL_ID:
+		if channel.category.id in const.NOT_LOGGED_CATEGORIES_IDS:
 			return
 		cache = pl.cached_message
 		if cache is not None:
@@ -79,7 +79,7 @@ class MangleEventLogger(commands.Cog):
 		                                                             fields=(("User :", ia.user.mention, False),
 		                                                                     ("Exception :", str(exception), False)),
 		                                                             icon=ia.user.display_avatar,
-		                                                             color=COLORS_DICT['light_blue']))
+		                                                             color=COLORS_DICT['orange']))
 
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx: commands.Context, exception):
@@ -87,4 +87,4 @@ class MangleEventLogger(commands.Cog):
 		                                                             fields=(("User :", ctx.author.mention, False),
 		                                                                     ("Exception :", str(exception), False)),
 		                                                             icon=ctx.author.display_avatar,
-		                                                             color=COLORS_DICT['blue']))
+		                                                             color=COLORS_DICT['pink']))

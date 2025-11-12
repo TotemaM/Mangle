@@ -14,7 +14,7 @@ from qrcode.main import QRCode
 from qrcode import constants as qr_const
 from nextcord.ext import commands
 from bot import Mangle
-from command_utils import check_bot_channel
+from command_utils import check_bot_channel, log_command
 import os
 
 ERROR_CORR = {"7": qr_const.ERROR_CORRECT_L,
@@ -43,6 +43,7 @@ class MangleQRCode(commands.Cog):
 	                                                                   description="Percentage of redundancy",
 	                                                                   required=False, default="15",
 	                                                                   choices=["7", "15", "25", "30"])):
+		await log_command(self.mangle, ia, "qrcode")
 		if not await check_bot_channel(self.mangle, ia):
 			return
 		filename = f"static/qrcode_{ia.user.name}.png"

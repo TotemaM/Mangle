@@ -12,7 +12,7 @@
 import nextcord
 from nextcord.ext import commands, tasks
 from bot import Mangle
-from command_utils import check_bot_channel
+from command_utils import check_bot_channel, log_command
 
 
 def setup(mangle: commands.Bot):
@@ -64,8 +64,9 @@ class MangleCustomVoiceChannel(commands.Cog):
 
 	@nextcord.slash_command(name="create_voice_channel",
 	                        description="Go into a voice channel and type this command to create your temporary voice channel.")
-	async def custom_vc(self, ia: nextcord.Interaction,
+	async def create_voice_channel(self, ia: nextcord.Interaction,
 	                    channel_name: str = nextcord.SlashOption(required=True, min_length=2, max_length=12)):
+		await log_command(self.mangle, ia, "create_voice_channel")
 		if not await check_bot_channel(self.mangle, ia):
 			return
 		if not ia.user.voice:

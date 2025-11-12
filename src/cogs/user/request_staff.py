@@ -12,7 +12,7 @@
 import nextcord, const
 from nextcord.ext import commands
 from bot import Mangle
-from cogs.admin.embed_message import create_embed, COLORS_DICT
+from command_utils import create_embed, COLORS_DICT, check_bot_channel, log_command
 
 
 def setup(mangle: commands.Bot):
@@ -87,13 +87,12 @@ class MangleRequestStaff(commands.Cog):
 
 	@nextcord.slash_command(name="request_bde",
 	                        description="Make a request to the BDE. Your request will be followed by the BDE staff")
-	async def request_bde(self, ia: nextcord.Interaction,
-	                      request_type: str = nextcord.SlashOption(required=True, choices=REQUEST_TYPES)):
-		if ia.channel.id != const.BOT_CHANNEL_ID:
-			return await ia.send(
-				content=f"You're not in the appropriate channel, try this here {self.mangle.get_channel(const.BOT_CHANNEL_ID).mention}",
-				ephemeral=True, delete_after=5)
+	async def request_bde(self, ia: nextcord.Interaction, request_type: str = nextcord.SlashOption(required=True, choices=REQUEST_TYPES)):
+		await log_command(self.mangle, ia, "request_bde")
+		if not await check_bot_channel(self.mangle, ia):
+			return
 		request_channel: nextcord.TextChannel = self.mangle.guild.get_channel(const.REQUEST_CHANNEL_ID)
-		return await ia.response.send_modal(
+		await ia.response.send_modal(
 			RequestStaffModal(title=f"{request_type} request", request_type=request_type, channel=request_channel,
 			                  category=request_channel.category, notify_role=self.mangle.BDE_NOTIFY_ROLE))
+		return

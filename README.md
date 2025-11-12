@@ -69,6 +69,7 @@ The bot logs all following events into a channel :
 - Message modified
 - Message deleted
 - Any internal error, for debugging purpose
+- Any command tried, by any user.
 
 It also deletes all the messages that are not commands. in the command channel.
 #### QR Code generator
