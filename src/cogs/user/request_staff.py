@@ -19,7 +19,7 @@ def setup(mangle: commands.Bot):
 	mangle.add_cog(MangleRequestStaff(mangle))
 
 
-REQUEST_TYPES = ["Club", "Event", "Generic"]
+REQUEST_TYPES = ["Club", "Event", "Recruitment", "Generic"]
 
 
 class RequestStaffView(nextcord.ui.View):
@@ -71,6 +71,11 @@ class RequestStaffModal(nextcord.ui.Modal):
 				await new_text_channel.edit(name=f"🔸{ia.user.display_name}")
 				embed.colour = COLORS_DICT['orange']
 				await msg.edit(content=f"{self.notify_role.mention} new event request by {ia.user.mention}",
+				               embed=embed, view=view)
+			case "Recruitment":
+				await new_text_channel.edit(name=f"🔺{ia.user.display_name}")
+				embed.colour = COLORS_DICT['red']
+				await msg.edit(content=f"{self.notify_role.mention} new recruitment request by {ia.user.mention}",
 				               embed=embed, view=view)
 			case "Generic":
 				await new_text_channel.edit(name=f"▫️{ia.user.display_name}")
